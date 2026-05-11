@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model registros_educacionais {
+  id_total           Int     @id @default(autoincrement())
+  id                 Int?    @map("_id")
+  AnoReferencia      Int?
+  NomeMunicipio      String?
+  NomeUnidadeEscolar String?
+  MatriculasTotal    Int?
+  MatriculaInicial   Int?
+  MatriculaAposCenso Int?
+  Transferidos       Int?
+  Cancelados         Int?
+  Falecido           Int?
+  Abandono           Int?
+  Aprovados          Int?
+  Reprovados         Int?
+  Cursando           Int?
+  OutrasSituacoes    Int?
+
+  @@index([AnoReferencia], map: "idx_ano")
+  @@index([NomeMunicipio], map: "idx_municipio")
+}
