@@ -13,6 +13,7 @@ import { getDataForDashboards } from "./utils/dashboardData.util.ts";
 
 function App() {
   const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState<string | null>(null);
   const [allData, setAllData] = useState<DashboardItem[]>([]);
 
   const [filters, setFilters] = useState<Filters>({
@@ -22,14 +23,29 @@ function App() {
   });
 
   function updateFilter(field: keyof typeof filters, value: string | number) {
-    setFilters((prev) => ({ ...prev, [field]: value }));
-  }
+  setFilters((prev) => {
+    const novosFiltros = { ...prev, [field]: value };
+
+    if (field === "anoInicial" && Number(value) > novosFiltros.anoFinal) {
+      novosFiltros.anoFinal = Number(value);
+    }
+    if (field === "anoFinal" && Number(value) < novosFiltros.anoInicial) {
+      novosFiltros.anoInicial = Number(value);
+    }
+
+    return novosFiltros;
+  });
+}
 
   useEffect(() => {
-    getDashboardData()
-      .then(setAllData)
-      .finally(() => setLoading(false));
-  }, []);
+  getDashboardData()
+    .then((dados) => {
+      setAllData(dados);
+      setErro(null);
+    })
+    .catch((e: Error) => setErro(e.message))
+    .finally(() => setLoading(false));
+}, []);
 
   const municipioOptions = useMemo(() => {
     return [...new Set(allData.map((item) => item.cidade))].sort();
@@ -49,18 +65,18 @@ function App() {
     });
   }, [allData, filters]);
 
-  const dashBoardData = useMemo(() => {
+  const dashboardData = useMemo(() => {
     return getDataForDashboards(filteredData);
   }, [filteredData]);
 
   function calculateVariation(
     metric: "taxaAprovacao" | "taxaAbandono" | "taxaReprovacao",
   ) {
-    if (dashBoardData.length < 2) {
+    if (dashboardData.length < 2) {
       return null;
     }
 
-    const sortedData = [...dashBoardData].sort((a, b) => a.ano - b.ano);
+    const sortedData = [...dashboardData].sort((a, b) => a.ano - b.ano);
 
     const firstValue = sortedData[0][metric];
     const lastValue = sortedData[sortedData.length - 1][metric];
@@ -83,7 +99,11 @@ function App() {
   const abandonoKpi = calculateVariation("taxaAbandono");
 
   if (loading) {
-    <h1>Loading</h1>;
+    return <h1>Carregando...</h1>;
+  }
+
+  if (erro) {
+    return <h1>Erro ao carregar dados: {erro}</h1>;
   }
 
   return (
@@ -194,7 +214,7 @@ function App() {
             }}
           >
             <EvolutionChart
-              data={dashBoardData}
+              data={dashboardData}
               dataKey="taxaAprovacao"
               title="Resultados das Taxas de Aprovação"
               legendTitle="Taxa de aprovação"
@@ -218,7 +238,7 @@ function App() {
               }}
             >
               <EvolutionChart
-                data={dashBoardData}
+                data={dashboardData}
                 dataKey="taxaReprovacao"
                 title="Resultados das Taxas de Reprovação"
                 legendTitle="Taxa de reprovação"
@@ -235,7 +255,7 @@ function App() {
               }}
             >
               <EvolutionChart
-                data={dashBoardData}
+                data={dashboardData}
                 dataKey="taxaAbandono"
                 title="Resultados das Taxas de Abandono"
                 legendTitle="Taxa de abandono"
@@ -252,7 +272,7 @@ function App() {
               border: "1px solid #e5e7eb",
             }}
           >
-            <StackedBarChart data={dashBoardData} />
+            <StackedBarChart data={dashboardData} />
           </section>
         </main>
       </section>
