@@ -9,6 +9,7 @@ import {
   CartesianGrid,
 } from "recharts";
 import type { DashboardItem } from "../types/dashboardItem.type";
+import { cores } from "../utils/tema.util";
 
 type Props = {
   data: DashboardItem[];
@@ -48,32 +49,32 @@ export function StackedBarChart({ data }: Props) {
               tickMargin={10}
             />
 
-            <Tooltip formatter={(value: number) => [`${value.toFixed(2)}%`]} />
+            <Tooltip formatter={(value) => [`${Number(value).toFixed(2)}%`]} />
             <Legend wrapperStyle={{ paddingTop: "2rem" }} />
 
             <Bar
               dataKey="taxaAprovacao"
               name="Aprovação"
               stackId="resultado"
-              fill="#22c55e"
+              fill={cores.aprovacao}
             />
             <Bar
               dataKey="taxaReprovacao"
               name="Reprovação"
               stackId="resultado"
-              fill="#ef4444"
+              fill={cores.reprovacao}
             />
             <Bar
               dataKey="taxaAbandono"
               name="Abandono"
               stackId="resultado"
-              fill="#f59e0b"
+              fill={cores.abandono}
             />
             <Bar
               dataKey="taxaCancelamento"
               name="Cancelamento"
               stackId="resultado"
-              fill="#6b7280"
+              fill={cores.cancelamento}
             />
           </BarChart>
         </ResponsiveContainer>

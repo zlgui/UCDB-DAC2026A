@@ -1,4 +1,5 @@
 import { Card } from "./Card";
+import { cores } from "../utils/tema.util";
 
 type Props = {
   title: string;
@@ -9,13 +10,9 @@ type Props = {
 export function KpiCard({ title, value, positiveIsGood = true }: Props) {
   const isPositive = value >= 0;
 
-  let color = "#6b7280";
-
-  if (positiveIsGood) {
-    color = isPositive ? "#16a34a" : "#dc2626";
-  } else {
-    color = isPositive ? "#dc2626" : "#16a34a";
-  }
+  const corPositiva = positiveIsGood ? cores.positivo : cores.negativo;
+  const corNegativa = positiveIsGood ? cores.negativo : cores.positivo;
+  const color = isPositive ? corPositiva : corNegativa;
 
   const formattedValue = `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`;
 

@@ -10,6 +10,7 @@ import {
 } from "recharts";
 
 import type { DashboardItem } from "../types/dashboardItem.type";
+import { cores } from "../utils/tema.util";
 
 type Props = {
   data: DashboardItem[];
@@ -23,6 +24,13 @@ type MetricKey =
   | "taxaAbandono"
   | "taxaReprovacao"
   | "taxaCancelamento";
+
+const corPorMetrica: Record<MetricKey, string> = {
+  taxaAprovacao: cores.aprovacao,
+  taxaReprovacao: cores.reprovacao,
+  taxaAbandono: cores.abandono,
+  taxaCancelamento: cores.cancelamento,
+};
 
 export function EvolutionChart({ data, dataKey, title, legendTitle }: Props) {
   return (
@@ -48,7 +56,13 @@ export function EvolutionChart({ data, dataKey, title, legendTitle }: Props) {
           <YAxis tickMargin={15} />
           <Tooltip />
           <Legend wrapperStyle={{ paddingTop: "2rem" }} />
-          <Line type="monotone" dataKey={dataKey} name={legendTitle} />
+          <Line
+            type="monotone"
+            dataKey={dataKey}
+            name={legendTitle}
+            stroke={corPorMetrica[dataKey]}
+            strokeWidth={2}
+          />
         </LineChart>
       </ResponsiveContainer>
     </div>
