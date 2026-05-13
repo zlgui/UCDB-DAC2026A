@@ -1,120 +1,56 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 
+import { Card } from "./components/Card";
+import { FiltroBarra } from "./components/FiltroBarra";
+import { PainelKpis } from "./components/PainelKpis";
 import { EvolutionChart } from "./components/LineChart";
 import { StackedBarChart } from "./components/StackedBarChart";
-import { Select } from "./components/Select";
-import { KpiCard } from "./components/KpiCard";
 
-import type { DashboardItem } from "./types/dashboardItem.type";
-import type { Filters } from "./types/filterItem.type";
-
-import { getDashboardData } from "./services/api.service.ts";
-import { getDataForDashboards } from "./utils/dashboardData.util.ts";
+import { useDadosDashboard } from "./hooks/useDadosDashboard";
+import { useFiltros } from "./hooks/useFiltros";
+import { getDataForDashboards } from "./utils/dashboardData.util";
 
 function App() {
-  const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState<string | null>(null);
-  const [allData, setAllData] = useState<DashboardItem[]>([]);
+  const { dados: todosDados, carregando, erro } = useDadosDashboard();
+  const { filtros, atualizarFiltro } = useFiltros();
 
-  const [filters, setFilters] = useState<Filters>({
-    cidade: "",
-    anoInicial: 2018,
-    anoFinal: 2026,
-  });
+  const municipios = useMemo(
+    () => [...new Set(todosDados.map((item) => item.cidade))].sort(),
+    [todosDados],
+  );
 
-  function updateFilter(field: keyof typeof filters, value: string | number) {
-  setFilters((prev) => {
-    const novosFiltros = { ...prev, [field]: value };
+  const anos = useMemo(
+    () =>
+      [...new Set(todosDados.map((item) => item.ano))].sort((a, b) => a - b),
+    [todosDados],
+  );
 
-    if (field === "anoInicial" && Number(value) > novosFiltros.anoFinal) {
-      novosFiltros.anoFinal = Number(value);
-    }
-    if (field === "anoFinal" && Number(value) < novosFiltros.anoInicial) {
-      novosFiltros.anoInicial = Number(value);
-    }
+  const dadosFiltrados = useMemo(
+    () =>
+      todosDados.filter(
+        (item) =>
+          (!filtros.cidade || item.cidade === filtros.cidade) &&
+          item.ano >= filtros.anoInicial &&
+          item.ano <= filtros.anoFinal,
+      ),
+    [todosDados, filtros],
+  );
 
-    return novosFiltros;
-  });
-}
+  const dadosDashboard = useMemo(
+    () => getDataForDashboards(dadosFiltrados),
+    [dadosFiltrados],
+  );
 
-  useEffect(() => {
-  getDashboardData()
-    .then((dados) => {
-      setAllData(dados);
-      setErro(null);
-    })
-    .catch((e: Error) => setErro(e.message))
-    .finally(() => setLoading(false));
-}, []);
-
-  const municipioOptions = useMemo(() => {
-    return [...new Set(allData.map((item) => item.cidade))].sort();
-  }, [allData]);
-
-  const anoOptions = useMemo(() => {
-    return [...new Set(allData.map((item) => item.ano))].sort((a, b) => a - b);
-  }, [allData]);
-
-  const filteredData = useMemo(() => {
-    return allData.filter((item) => {
-      const cidadeOk = !filters.cidade || item.cidade === filters.cidade;
-      const anoOk =
-        item.ano >= filters.anoInicial && item.ano <= filters.anoFinal;
-
-      return cidadeOk && anoOk;
-    });
-  }, [allData, filters]);
-
-  const dashboardData = useMemo(() => {
-    return getDataForDashboards(filteredData);
-  }, [filteredData]);
-
-  function calculateVariation(
-    metric: "taxaAprovacao" | "taxaAbandono" | "taxaReprovacao",
-  ) {
-    if (dashboardData.length < 2) {
-      return null;
-    }
-
-    const sortedData = [...dashboardData].sort((a, b) => a.ano - b.ano);
-
-    const firstValue = sortedData[0][metric];
-    const lastValue = sortedData[sortedData.length - 1][metric];
-
-    if (firstValue == null || lastValue == null || firstValue === 0) {
-      return null;
-    }
-
-    const variation = ((lastValue - firstValue) / firstValue) * 100;
-
-    return {
-      first: firstValue,
-      last: lastValue,
-      variation,
-    };
-  }
-
-  const aprovacaoKpi = calculateVariation("taxaAprovacao");
-  const reprovacaoKpi = calculateVariation("taxaReprovacao");
-  const abandonoKpi = calculateVariation("taxaAbandono");
-
-  if (loading) {
-    return <h1>Carregando...</h1>;
-  }
-
-  if (erro) {
-    return <h1>Erro ao carregar dados: {erro}</h1>;
-  }
+  if (carregando) return <h1>Carregando...</h1>;
+  if (erro) return <h1>Erro ao carregar dados: {erro}</h1>;
 
   return (
     <div
       style={{
         width: "75%",
         maxWidth: "1800px",
-        margin: "0 auto",
+        margin: "1rem auto",
         padding: "0.5rem",
-        marginTop: "1rem",
-        marginBottom: "1rem",
         backgroundColor: "#F7F7F7",
         borderRadius: "10px",
         boxShadow: "0 10px 30px rgba(0, 0, 0, 0.12)",
@@ -131,95 +67,36 @@ function App() {
       >
         <header
           style={{
-            width: "100%",
-            color: "white",
             display: "flex",
             flexDirection: "column",
-            borderRadius: "5px",
             gap: "1rem",
           }}
         >
-          <section style={{ padding: "0.5rem", color: "black" }}>
+          <section style={{ padding: "0.5rem" }}>
             <h1>Análise de dados - DAC - 4º semestre</h1>
           </section>
 
-          <section
-            style={{
-              display: "flex",
-              gap: "1rem",
-              height: "40%",
-              padding: "0.5rem",
-              justifyContent: "center",
-            }}
-          >
-            <Select
-              value={filters.cidade}
-              options={municipioOptions}
-              placeholder="Todos os municípios"
-              onChange={(value) => updateFilter("cidade", value)}
-            />
-            <Select
-              value={filters.anoInicial}
-              options={anoOptions}
-              onChange={(value) => updateFilter("anoInicial", Number(value))}
-            />
-            <Select
-              value={filters.anoFinal}
-              options={anoOptions}
-              onChange={(value) => updateFilter("anoFinal", Number(value))}
-            />
-          </section>
+          <FiltroBarra
+            filtros={filtros}
+            municipios={municipios}
+            anos={anos}
+            aoAlterar={atualizarFiltro}
+          />
 
-          <section
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-              gap: "1rem",
-            }}
-          >
-            {aprovacaoKpi && (
-              <KpiCard
-                title="Variação da Aprovação"
-                value={aprovacaoKpi.variation}
-                positiveIsGood={true}
-              />
-            )}
-            {reprovacaoKpi && (
-              <KpiCard
-                title="Variação da Reprovação"
-                value={reprovacaoKpi.variation}
-                positiveIsGood={false}
-              />
-            )}
-            {abandonoKpi && (
-              <KpiCard
-                title="Variação do Abandono"
-                value={abandonoKpi.variation}
-                positiveIsGood={false}
-              />
-            )}
-          </section>
+          <PainelKpis dados={dadosDashboard} />
         </header>
 
         <main
           style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}
         >
-          <section
-            style={{
-              backgroundColor: "white",
-              borderRadius: "12px",
-              padding: "1.5rem",
-              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.06)",
-              border: "1px solid #e5e7eb",
-            }}
-          >
+          <Card>
             <EvolutionChart
-              data={dashboardData}
+              data={dadosDashboard}
               dataKey="taxaAprovacao"
               title="Resultados das Taxas de Aprovação"
               legendTitle="Taxa de aprovação"
             />
-          </section>
+          </Card>
 
           <section
             style={{
@@ -228,52 +105,27 @@ function App() {
               gap: "1.5rem",
             }}
           >
-            <div
-              style={{
-                backgroundColor: "white",
-                borderRadius: "12px",
-                padding: "1.5rem",
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.06)",
-                border: "1px solid #e5e7eb",
-              }}
-            >
+            <Card>
               <EvolutionChart
-                data={dashboardData}
+                data={dadosDashboard}
                 dataKey="taxaReprovacao"
                 title="Resultados das Taxas de Reprovação"
                 legendTitle="Taxa de reprovação"
               />
-            </div>
-
-            <div
-              style={{
-                backgroundColor: "white",
-                borderRadius: "12px",
-                padding: "1.5rem",
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.06)",
-                border: "1px solid #e5e7eb",
-              }}
-            >
+            </Card>
+            <Card>
               <EvolutionChart
-                data={dashboardData}
+                data={dadosDashboard}
                 dataKey="taxaAbandono"
                 title="Resultados das Taxas de Abandono"
                 legendTitle="Taxa de abandono"
               />
-            </div>
+            </Card>
           </section>
 
-          <section
-            style={{
-              backgroundColor: "white",
-              borderRadius: "12px",
-              padding: "1.5rem",
-              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.06)",
-              border: "1px solid #e5e7eb",
-            }}
-          >
-            <StackedBarChart data={dashboardData} />
-          </section>
+          <Card>
+            <StackedBarChart data={dadosDashboard} />
+          </Card>
         </main>
       </section>
     </div>

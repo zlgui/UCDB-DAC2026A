@@ -1,3 +1,5 @@
+import { Card } from "./Card";
+
 type Props = {
   title: string;
   value: number;
@@ -7,7 +9,6 @@ type Props = {
 export function KpiCard({ title, value, positiveIsGood = true }: Props) {
   const isPositive = value >= 0;
 
-  // Determine color based on whether positive values are good or bad
   let color = "#6b7280";
 
   if (positiveIsGood) {
@@ -18,16 +19,8 @@ export function KpiCard({ title, value, positiveIsGood = true }: Props) {
 
   const formattedValue = `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`;
 
-  return (
-    <div
-      style={{
-        backgroundColor: "white",
-        borderRadius: "12px",
-        padding: "1.5rem",
-        border: "1px solid #e5e7eb",
-        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.06)",
-      }}
-    >
+return (
+    <Card>
       <p
         style={{
           margin: 0,
@@ -49,6 +42,6 @@ export function KpiCard({ title, value, positiveIsGood = true }: Props) {
       >
         {formattedValue}
       </h2>
-    </div>
+    </Card>
   );
 }
