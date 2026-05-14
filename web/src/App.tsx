@@ -12,7 +12,7 @@ import { getDataForDashboards } from "./utils/dashboardData.util";
 import { Carregando } from "./components/Carregando";
 import { MensagemErro } from "./components/MensagemErro";
 import { EstadoVazio } from "./components/EstadoVazio";
-import { cores, raios, sombras } from "./utils/tema.util";
+import { cores, raios, sombras, gradientes } from "./utils/tema.util";
 
 function App() {
   const { dados: todosDados, carregando, erro, recarregar } = useDadosDashboard();
@@ -73,11 +73,40 @@ function App() {
           style={{
             display: "flex",
             flexDirection: "column",
-            gap: "1rem",
+            gap: "1.5rem",
           }}
         >
-          <section style={{ padding: "0.5rem" }}>
-            <h1>Análise de dados - DAC - 4º semestre</h1>
+        <section style={{ padding: "0.5rem 0" }}>
+            <h1
+              style={{
+                margin: 0,
+                fontSize: "clamp(1.75rem, 3vw, 2.5rem)",
+                fontWeight: 700,
+                color: cores.textoTitulo,
+                letterSpacing: "-0.02em",
+              }}
+            >
+              Análise de dados — DAC · 4º semestre
+            </h1>
+            <p
+              style={{
+                marginTop: "0.5rem",
+                fontSize: "1rem",
+                color: cores.textoSubtitulo,
+                fontWeight: 400,
+              }}
+            >
+              Acompanhamento de taxas educacionais em Mato Grosso do Sul
+            </p>
+            <div
+              style={{
+                marginTop: "1rem",
+                height: "3px",
+                width: "120px",
+                background: gradientes.acento,
+                borderRadius: "2px",
+              }}
+            />
           </section>
 
           <FiltroBarra
