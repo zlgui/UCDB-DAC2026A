@@ -53,8 +53,8 @@ function App() {
       style={{
         width: "100%",
         maxWidth: "1400px",
-        margin: "1rem auto",
-        padding: "clamp(0.5rem, 2vw, 1.5rem)",
+        margin: "2rem auto",
+        padding: "clamp(1rem, 3vw, 2.5rem)",
         backgroundColor: cores.fundoPagina,
         borderRadius: raios.container,
         boxShadow: sombras.container,
