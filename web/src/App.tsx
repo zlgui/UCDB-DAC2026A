@@ -12,6 +12,7 @@ import { getDataForDashboards } from "./utils/dashboardData.util";
 import { Carregando } from "./components/Carregando";
 import { MensagemErro } from "./components/MensagemErro";
 import { EstadoVazio } from "./components/EstadoVazio";
+import { cores, raios, sombras } from "./utils/tema.util";
 
 function App() {
   const { dados: todosDados, carregando, erro, recarregar } = useDadosDashboard();
@@ -50,13 +51,13 @@ function App() {
   return (
     <div
       style={{
-        width: "75%",
-        maxWidth: "1800px",
+        width: "100%",
+        maxWidth: "1400px",
         margin: "1rem auto",
-        padding: "0.5rem",
-        backgroundColor: "#F7F7F7",
-        borderRadius: "10px",
-        boxShadow: "0 10px 30px rgba(0, 0, 0, 0.12)",
+        padding: "clamp(0.5rem, 2vw, 1.5rem)",
+        backgroundColor: cores.fundoPagina,
+        borderRadius: raios.container,
+        boxShadow: sombras.container,
         boxSizing: "border-box",
       }}
     >
@@ -110,7 +111,7 @@ function App() {
               <section
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
                   gap: "1.5rem",
                 }}
               >
