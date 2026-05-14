@@ -54,7 +54,9 @@ export function EvolutionChart({ data, dataKey, title, legendTitle }: Props) {
           <CartesianGrid strokeDasharray="2 2" />
           <XAxis dataKey="ano" tickMargin={15} />
           <YAxis tickMargin={15} />
-          <Tooltip />
+          <Tooltip
+            formatter={(value) => [`${Number(value).toFixed(2)}%`, legendTitle]}
+          />
           <Legend wrapperStyle={{ paddingTop: "2rem" }} />
           <Line
             type="monotone"

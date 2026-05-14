@@ -9,9 +9,12 @@ import { StackedBarChart } from "./components/StackedBarChart";
 import { useDadosDashboard } from "./hooks/useDadosDashboard";
 import { useFiltros } from "./hooks/useFiltros";
 import { getDataForDashboards } from "./utils/dashboardData.util";
+import { Carregando } from "./components/Carregando";
+import { MensagemErro } from "./components/MensagemErro";
+import { EstadoVazio } from "./components/EstadoVazio";
 
 function App() {
-  const { dados: todosDados, carregando, erro } = useDadosDashboard();
+  const { dados: todosDados, carregando, erro, recarregar } = useDadosDashboard();
   const { filtros, atualizarFiltro } = useFiltros();
 
   const municipios = useMemo(
@@ -41,8 +44,8 @@ function App() {
     [dadosFiltrados],
   );
 
-  if (carregando) return <h1>Carregando...</h1>;
-  if (erro) return <h1>Erro ao carregar dados: {erro}</h1>;
+  if (carregando) return <Carregando />;
+  if (erro) return <MensagemErro mensagem={erro} aoTentarNovamente={recarregar} />;
 
   return (
     <div
@@ -89,43 +92,51 @@ function App() {
         <main
           style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}
         >
-          <Card>
-            <EvolutionChart
-              data={dadosDashboard}
-              dataKey="taxaAprovacao"
-              title="Resultados das Taxas de Aprovação"
-              legendTitle="Taxa de aprovação"
-            />
-          </Card>
-
-          <section
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "1.5rem",
-            }}
-          >
+          {dadosDashboard.length === 0 ? (
             <Card>
-              <EvolutionChart
-                data={dadosDashboard}
-                dataKey="taxaReprovacao"
-                title="Resultados das Taxas de Reprovação"
-                legendTitle="Taxa de reprovação"
-              />
+              <EstadoVazio />
             </Card>
-            <Card>
-              <EvolutionChart
-                data={dadosDashboard}
-                dataKey="taxaAbandono"
-                title="Resultados das Taxas de Abandono"
-                legendTitle="Taxa de abandono"
-              />
-            </Card>
-          </section>
+          ) : (
+            <>
+              <Card>
+                <EvolutionChart
+                  data={dadosDashboard}
+                  dataKey="taxaAprovacao"
+                  title="Resultados das Taxas de Aprovação"
+                  legendTitle="Taxa de aprovação"
+                />
+              </Card>
 
-          <Card>
-            <StackedBarChart data={dadosDashboard} />
-          </Card>
+              <section
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "1.5rem",
+                }}
+              >
+                <Card>
+                  <EvolutionChart
+                    data={dadosDashboard}
+                    dataKey="taxaReprovacao"
+                    title="Resultados das Taxas de Reprovação"
+                    legendTitle="Taxa de reprovação"
+                  />
+                </Card>
+                <Card>
+                  <EvolutionChart
+                    data={dadosDashboard}
+                    dataKey="taxaAbandono"
+                    title="Resultados das Taxas de Abandono"
+                    legendTitle="Taxa de abandono"
+                  />
+                </Card>
+              </section>
+
+              <Card>
+                <StackedBarChart data={dadosDashboard} />
+              </Card>
+            </>
+          )}
         </main>
       </section>
     </div>
