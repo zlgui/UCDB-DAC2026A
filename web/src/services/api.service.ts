@@ -8,7 +8,7 @@ export async function getDashboardData(): Promise<DashboardItem[]> {
   );
 
   if (!response.ok) {
-    throw new Error("Erro ao buscar dados");
+    throw new Error(`Erro ao buscar dados (HTTP ${response.status})`);
   }
 
   return response.json();
