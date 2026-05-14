@@ -62,7 +62,9 @@
 
 body {
   margin: 0;
-  background-color: #00509d;
+  background: linear-gradient(135deg, #0F172A 0%, #1E3A5F 50%, #2D1B69 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
 }
 
 h1,
