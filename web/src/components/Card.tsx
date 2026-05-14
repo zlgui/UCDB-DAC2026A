@@ -14,7 +14,7 @@ export function Card({ children, style }: Props) {
         borderRadius: raios.card,
         padding: espacamentos.grande,
         boxShadow: sombras.card,
-        border: `1px solid ${cores.borda}`,
+        border: `1px solid ${cores.bordaSuave}`,
         ...style,
       }}
     >
