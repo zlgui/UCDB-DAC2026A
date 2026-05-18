@@ -8,12 +8,14 @@ type Acumulador = {
   somaAban: number;
   somaCanc: number;
   totalMatriculas: number;
+  consolidado: boolean;
 };
 
 export function getDataForDashboards(data: DashboardItem[]): DashboardItem[] {
   const grouped = data.reduce(
     (acc, item) => {
       const peso = item.matriculas ?? 1;
+      const consolidado = item.consolidado ?? true;
       if (!acc[item.ano]) {
         acc[item.ano] = {
           ano: item.ano,
@@ -23,6 +25,7 @@ export function getDataForDashboards(data: DashboardItem[]): DashboardItem[] {
           somaAban: 0,
           somaCanc: 0,
           totalMatriculas: 0,
+          consolidado: true,
         };
       }
       acc[item.ano].somaApr += item.taxaAprovacao * peso;
@@ -30,6 +33,7 @@ export function getDataForDashboards(data: DashboardItem[]): DashboardItem[] {
       acc[item.ano].somaAban += item.taxaAbandono * peso;
       acc[item.ano].somaCanc += item.taxaCancelamento * peso;
       acc[item.ano].totalMatriculas += peso;
+      acc[item.ano].consolidado = acc[item.ano].consolidado && consolidado;
       return acc;
     },
     {} as Record<number, Acumulador>,
@@ -44,6 +48,7 @@ export function getDataForDashboards(data: DashboardItem[]): DashboardItem[] {
       taxaCancelamento: Number((g.somaCanc / g.totalMatriculas).toFixed(2)),
       taxaReprovacao: Number((g.somaRep / g.totalMatriculas).toFixed(2)),
       matriculas: g.totalMatriculas,
+      consolidado: g.consolidado,
     }))
     .sort((a, b) => a.ano - b.ano);
 }
