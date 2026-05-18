@@ -5,4 +5,5 @@ export type DashboardItem = {
   taxaAbandono: number;
   taxaCancelamento: number;
   taxaReprovacao: number;
+  matriculas?: number;
 };

@@ -16,7 +16,6 @@ import { cores, raios, sombras, gradientes } from "./utils/tema.util";
 
 function App() {
   const { dados: todosDados, carregando, erro, recarregar } = useDadosDashboard();
-  const { filtros, atualizarFiltro } = useFiltros();
 
   const municipios = useMemo(
     () => [...new Set(todosDados.map((item) => item.cidade))].sort(),
@@ -28,6 +27,8 @@ function App() {
       [...new Set(todosDados.map((item) => item.ano))].sort((a, b) => a - b),
     [todosDados],
   );
+
+  const { filtros, atualizarFiltro } = useFiltros({ anosDisponiveis: anos });
 
   const dadosFiltrados = useMemo(
     () =>
