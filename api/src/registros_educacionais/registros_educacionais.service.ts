@@ -40,8 +40,6 @@ export class RegistrosEducacionaisService {
         const somaTaxas =
           taxaAprovacao + taxaAbandono + taxaCancelamento + taxaReprovacao;
 
-        if (somaTaxas < LIMITE_CONSOLIDACAO) return null;
-
         return {
           ano: currentInfo.AnoReferencia,
           cidade: currentInfo.NomeMunicipio,
@@ -50,6 +48,7 @@ export class RegistrosEducacionaisService {
           taxaCancelamento,
           taxaReprovacao,
           matriculas,
+          consolidado: somaTaxas >= LIMITE_CONSOLIDACAO,
         };
       })
       .filter((item) => item !== null);
