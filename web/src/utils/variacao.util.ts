@@ -6,9 +6,10 @@ export function calcularVariacao(
   dados: DashboardItem[],
   metrica: MetricaVariacao,
 ): number | null {
-  if (dados.length < 2) return null;
+  const consolidados = dados.filter((d) => d.consolidado !== false);
+  if (consolidados.length < 2) return null;
 
-  const ordenado = [...dados].sort((a, b) => a.ano - b.ano);
+  const ordenado = [...consolidados].sort((a, b) => a.ano - b.ano);
   const inicial = ordenado[0][metrica];
   const final = ordenado[ordenado.length - 1][metrica];
 
