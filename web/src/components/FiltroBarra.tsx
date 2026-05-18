@@ -1,5 +1,6 @@
 import { Select } from "./Select";
 import type { Filters } from "../types/filterItem.type";
+import { cores, raios } from "../utils/tema.util";
 
 type Props = {
   filtros: Filters;
@@ -14,9 +15,12 @@ export function FiltroBarra({ filtros, municipios, anos, aoAlterar }: Props) {
       style={{
         display: "flex",
         gap: "1rem",
-        padding: "0.5rem",
+        padding: "1.25rem 1.5rem",
         justifyContent: "center",
         flexWrap: "wrap",
+        backgroundColor: cores.fundoSecao,
+        borderRadius: raios.controle,
+        border: `1px solid ${cores.bordaSuave}`,
       }}
     >
       <Select
