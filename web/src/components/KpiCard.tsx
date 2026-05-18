@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Card } from "./Card";
-import { cores } from "../utils/tema.util";
+import { cores, sombras, transicoes } from "../utils/tema.util";
 
 type Props = {
   title: string;
@@ -8,6 +9,7 @@ type Props = {
 };
 
 export function KpiCard({ title, value, positiveIsGood = true }: Props) {
+  const [hover, setHover] = useState(false);
   const isPositive = value >= 0;
 
   const corPositiva = positiveIsGood ? cores.positivo : cores.negativo;
@@ -16,29 +18,44 @@ export function KpiCard({ title, value, positiveIsGood = true }: Props) {
 
   const formattedValue = `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`;
 
-return (
-    <Card>
-      <p
+  return (
+    <div
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      <Card
         style={{
-          margin: 0,
-          fontSize: "0.9rem",
-          color: "#6b7280",
-          fontWeight: 500,
+          borderTop: `4px solid ${color}`,
+          transform: hover ? "translateY(-4px)" : "translateY(0)",
+          boxShadow: hover ? sombras.cardElevado : sombras.card,
+          transition: transicoes.suave,
         }}
       >
-        {title}
-      </p>
+        <p
+          style={{
+            margin: 0,
+            fontSize: "0.75rem",
+            color: cores.textoSecundario,
+            fontWeight: 600,
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+          }}
+        >
+          {title}
+        </p>
 
-      <h2
-        style={{
-          margin: "0.5rem 0 0 0",
-          fontSize: "2rem",
-          fontWeight: 700,
-          color: color,
-        }}
-      >
-        {formattedValue}
-      </h2>
-    </Card>
+        <h2
+          style={{
+            margin: "0.75rem 0 0 0",
+            fontSize: "2.25rem",
+            fontWeight: 700,
+            color,
+            letterSpacing: "-0.02em",
+          }}
+        >
+          {formattedValue}
+        </h2>
+      </Card>
+    </div>
   );
 }
