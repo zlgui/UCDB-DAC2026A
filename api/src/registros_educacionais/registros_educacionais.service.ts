@@ -20,22 +20,38 @@ export class RegistrosEducacionaisService {
       },
     });
 
-    return responseData.map((currentInfo) => {
-      const aprovados = currentInfo._sum.Aprovados ?? 0;
-      const abandonos = currentInfo._sum.Abandono ?? 0;
-      const cancelados = currentInfo._sum.Cancelados ?? 0;
-      const reprovados = currentInfo._sum.Reprovados ?? 0;
-      const matriculas = currentInfo._sum.MatriculasTotal ?? 1;
+    const LIMITE_CONSOLIDACAO = 50;
 
-      return {
-        ano: currentInfo.AnoReferencia,
-        cidade: currentInfo.NomeMunicipio,
-        taxaAprovacao: (aprovados / matriculas) * 100,
-        taxaAbandono: (abandonos / matriculas) * 100,
-        taxaCancelamento: (cancelados / matriculas) * 100,
-        taxaReprovacao: (reprovados / matriculas) * 100,
-        matriculas: matriculas,
-      };
-    });
+    return responseData
+      .map((currentInfo) => {
+        const aprovados = currentInfo._sum.Aprovados ?? 0;
+        const abandonos = currentInfo._sum.Abandono ?? 0;
+        const cancelados = currentInfo._sum.Cancelados ?? 0;
+        const reprovados = currentInfo._sum.Reprovados ?? 0;
+        const matriculas = currentInfo._sum.MatriculasTotal ?? 0;
+
+        if (matriculas === 0) return null;
+
+        const taxaAprovacao = (aprovados / matriculas) * 100;
+        const taxaAbandono = (abandonos / matriculas) * 100;
+        const taxaCancelamento = (cancelados / matriculas) * 100;
+        const taxaReprovacao = (reprovados / matriculas) * 100;
+
+        const somaTaxas =
+          taxaAprovacao + taxaAbandono + taxaCancelamento + taxaReprovacao;
+
+        if (somaTaxas < LIMITE_CONSOLIDACAO) return null;
+
+        return {
+          ano: currentInfo.AnoReferencia,
+          cidade: currentInfo.NomeMunicipio,
+          taxaAprovacao,
+          taxaAbandono,
+          taxaCancelamento,
+          taxaReprovacao,
+          matriculas,
+        };
+      })
+      .filter((item) => item !== null);
   }
 }
