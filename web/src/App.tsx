@@ -28,18 +28,7 @@ function App() {
     [todosDados],
   );
 
-  const ultimoAnoConsolidado = useMemo(() => {
-    const consolidados = todosDados.filter((d) => d.consolidado !== false);
-    const anosCons = [...new Set(consolidados.map((d) => d.ano))].sort(
-      (a, b) => a - b,
-    );
-    return anosCons[anosCons.length - 1];
-  }, [todosDados]);
-
-  const { filtros, atualizarFiltro } = useFiltros({
-    anosDisponiveis: anos,
-    ultimoAnoConsolidado,
-  });
+  const { filtros, atualizarFiltro } = useFiltros({ anosDisponiveis: anos });
 
   const dadosFiltrados = useMemo(
     () =>

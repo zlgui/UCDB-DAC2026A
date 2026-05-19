@@ -75,7 +75,13 @@ export function EvolutionChart({ data, dataKey, title, legendTitle }: Props) {
   });
 
   return (
-    <div style={{ width: "100%", height: 400 }}>
+    <div
+      style={{
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       <h3
         style={{
           margin: "0 0 1rem 0",
@@ -87,13 +93,13 @@ export function EvolutionChart({ data, dataKey, title, legendTitle }: Props) {
         {title}
       </h3>
 
-      <ResponsiveContainer height="85%">
+      <ResponsiveContainer width="100%" height={320}>
         <LineChart
           data={dados}
-          margin={{ top: 5, right: 0, left: 0, bottom: 5 }}
+          margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
         >
           <CartesianGrid strokeDasharray="2 2" />
-          <XAxis dataKey="ano" tickMargin={15} />
+          <XAxis dataKey="ano" tickMargin={15} interval={0} />
           <YAxis tickMargin={15} />
           <Tooltip
             formatter={(value) => [`${Number(value).toFixed(2)}%`, legendTitle]}
@@ -110,11 +116,12 @@ export function EvolutionChart({ data, dataKey, title, legendTitle }: Props) {
           <Line
             type="monotone"
             dataKey="tracejado"
-            name="Dados parciais"
+            name={legendTitle}
             stroke={cor}
             strokeWidth={2}
             strokeDasharray="6 4"
             connectNulls={false}
+            legendType="none"
           />
         </LineChart>
       </ResponsiveContainer>
