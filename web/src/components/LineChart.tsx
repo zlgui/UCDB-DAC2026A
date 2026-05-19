@@ -32,15 +32,41 @@ const corPorMetrica: Record<MetricKey, string> = {
   taxaCancelamento: cores.cancelamento,
 };
 
+type ItemGap = { ano: number; vazio: true };
+type ItemOuGap = DashboardItem | ItemGap;
+
+function ehGap(item: ItemOuGap): item is ItemGap {
+  return "vazio" in item;
+}
+
 export function EvolutionChart({ data, dataKey, title, legendTitle }: Props) {
   const cor = corPorMetrica[dataKey];
   const ordenado = [...data].sort((a, b) => a.ano - b.ano);
-  const temParcial = ordenado.some((d) => d.consolidado === false);
 
-  const dados = ordenado.map((item, i) => {
+  const ordenadoComGaps: ItemOuGap[] = ordenado.length
+    ? Array.from(
+        { length: ordenado[ordenado.length - 1].ano - ordenado[0].ano + 1 },
+        (_, i): ItemOuGap => {
+          const ano = ordenado[0].ano + i;
+          return (
+            ordenado.find((d) => d.ano === ano) ?? { ano, vazio: true as const }
+          );
+        },
+      )
+    : [];
+
+  const temParcial = ordenadoComGaps.some(
+    (d) => !ehGap(d) && d.consolidado === false,
+  );
+  const temAnoFaltante = ordenadoComGaps.some(ehGap);
+
+  const dados = ordenadoComGaps.map((item, i) => {
+    if (ehGap(item)) {
+      return { ano: item.ano, solido: null, tracejado: null };
+    }
     const ehParcial = item.consolidado === false;
-    const proxParcial =
-      i < ordenado.length - 1 && ordenado[i + 1].consolidado === false;
+    const prox = ordenadoComGaps[i + 1];
+    const proxParcial = prox && !ehGap(prox) && prox.consolidado === false;
     return {
       ano: item.ano,
       solido: !ehParcial ? item[dataKey] : null,
@@ -93,7 +119,7 @@ export function EvolutionChart({ data, dataKey, title, legendTitle }: Props) {
         </LineChart>
       </ResponsiveContainer>
 
-      {temParcial && (
+      {(temParcial || temAnoFaltante) && (
         <p
           style={{
             fontSize: "0.75rem",
@@ -103,8 +129,10 @@ export function EvolutionChart({ data, dataKey, title, legendTitle }: Props) {
             fontStyle: "italic",
           }}
         >
-          * Linha tracejada indica anos com dados parciais (alunos ainda
-          cursando).
+          {temParcial &&
+            "Linha tracejada indica anos com dados parciais (alunos ainda cursando). "}
+          {temAnoFaltante &&
+            "Quebras na linha indicam anos sem dados disponíveis."}
         </p>
       )}
     </div>
